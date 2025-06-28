@@ -57,8 +57,7 @@ src/
 - **Flurl.Http**: For HTTP client operations with fluent API
 - **MediatR**: For implementing CQRS pattern with mediator
 - **FluentValidation**: For input validation
-- **AutoMapper**: For object-to-object mapping
-- **Serilog**: For structured logging
+- **Scalar.AspNetCore**: For API Developer Portal for OpenAPI
 
 ### CQRS/MediatR Implementation
 - Use MediatR for implementing CQRS pattern
