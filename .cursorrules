@@ -57,7 +57,6 @@ src/
 - **Flurl.Http**: For HTTP client operations with fluent API
 - **MediatR**: For implementing CQRS pattern with mediator
 - **FluentValidation**: For input validation
-- **Scalar.AspNetCore**: For API Developer Portal for OpenAPI
 
 ### CQRS/MediatR Implementation
 - Use MediatR for implementing CQRS pattern
@@ -125,3 +124,27 @@ src/
 - Use reactive forms for complex forms
 - Implement proper accessibility (ARIA labels)
 - Use Angular Material or similar UI library
+
+## Git
+
+### Commit Messages
+1.  **Subject Line (First Line):**
+    * Start with a concise, imperative summary of the change (e.g., "Fix: Prevent null pointer exception in user service").
+    * Keep it under 50-72 characters.
+    * Capitalize the first letter.
+    * Do NOT end with a period.
+    * (Optional, but recommended for consistency): Consider using a conventional commit type prefix like `feat:`, `fix:`, `chore:`, `docs:`, `style:`, `refactor:`, `test:`, `build:`, `ci:`, `perf:`, `revert:`
+
+2.  **Blank Line:**
+    * Always include a blank line after the subject line. This is crucial for Git tools to correctly parse the message.
+
+3.  **Body (Detailed Explanation):**
+    * **Explain the "Why":** Describe the problem being solved or the reason for the change. What was the context? What motivated this particular solution? Don't just say "fixed bug," explain *what* bug and *why* it needed fixing.
+    * **Explain the "What":** Detail what changes were made. Be specific. If multiple changes were part of this commit, use bullet points for clarity.
+    * **Explain the "How" (briefly, if necessary):** While generally less important than "why" and "what," briefly explain any significant architectural decisions or complex implementation details if they are not immediately obvious from the code.
+    * **Impact/Consequences:** Describe any potential side effects or wider implications of the change.
+    * **Refer to related issues/tickets:** If applicable, include references to issue trackers (e.g., `Fixes #123`, `Closes JIRA-456`).
+    * **Breaking Changes/Deprecations:** Clearly state if the commit introduces any breaking changes or deprecates existing functionality.
+    * **Reviewers/Acknowledgments:** Optionally, mention anyone who significantly contributed or reviewed the changes.
+    * **Wrap Lines:** Keep lines in the body wrapped at around 72-100 characters for readability in various Git tools.
+
