@@ -39,7 +39,7 @@ import { BreachService } from '../../services/breach.service';
   ],
   templateUrl: './breach-list.component.html',
   styleUrls: ['./breach-list.component.css'],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BreachListComponent implements OnInit, OnDestroy {
   breaches: Breach[] = [];
@@ -76,7 +76,6 @@ export class BreachListComponent implements OnInit, OnDestroy {
   loadBreaches(): void {
     console.log('Loading breaches...');
     this.loading = true;
-    this.cdr.detectChanges();
     
     const { fromDate, toDate } = this.filterForm.value;
     console.log('Filter values:', { fromDate, toDate });
@@ -86,7 +85,7 @@ export class BreachListComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         finalize(() => {
           this.loading = false;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           console.log('Loading completed');
         })
       )
@@ -94,13 +93,13 @@ export class BreachListComponent implements OnInit, OnDestroy {
         next: (breaches) => {
           console.log('Breaches received:', breaches?.length || 0);
           this.breaches = breaches || [];
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           console.log('Breaches loaded successfully');
         },
         error: (error) => {
           console.error('Error loading breaches:', error);
           this.breaches = [];
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
           this.snackBar.open('Error loading breaches. Please try again.', 'Close', {
             duration: 5000
           });
@@ -131,7 +130,7 @@ export class BreachListComponent implements OnInit, OnDestroy {
   downloadPdf(): void {
     console.log('Downloading PDF...');
     this.loading = true;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
     
     const { fromDate, toDate } = this.filterForm.value;
 
@@ -140,7 +139,7 @@ export class BreachListComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         finalize(() => {
           this.loading = false;
-          this.cdr.detectChanges();
+          this.cdr.markForCheck();
         })
       )
       .subscribe({

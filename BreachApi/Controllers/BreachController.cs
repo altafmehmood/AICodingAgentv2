@@ -3,6 +3,7 @@ using MediatR;
 using BreachApi.Features.Breaches.Queries;
 using BreachApi.Models;
 using Microsoft.Extensions.Logging;
+using BreachApi.Services;
 
 namespace BreachApi.Controllers;
 
@@ -15,11 +16,16 @@ public class BreachController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<BreachController> _logger;
+    private readonly IValidationService _validationService;
     
-    public BreachController(IMediator mediator, ILogger<BreachController> logger)
+    public BreachController(
+        IMediator mediator, 
+        ILogger<BreachController> logger,
+        IValidationService validationService)
     {
         _mediator = mediator;
         _logger = logger;
+        _validationService = validationService;
     }
     
     /// <summary>
@@ -32,6 +38,7 @@ public class BreachController : ControllerBase
     /// <response code="500">If there was an error retrieving the breaches</response>
     [HttpGet]
     [ProducesResponseType(typeof(List<Breach>), 200)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(500)]
     public async Task<ActionResult<List<Breach>>> GetBreaches(
         [FromQuery] DateTime? fromDate = null,
@@ -39,6 +46,14 @@ public class BreachController : ControllerBase
     {
         _logger.LogInformation("GetBreaches endpoint called with FromDate: {FromDate}, ToDate: {ToDate}", 
             fromDate?.ToString("yyyy-MM-dd"), toDate?.ToString("yyyy-MM-dd"));
+        
+        // Validate input parameters
+        var validationResult = _validationService.ValidateDateRange(fromDate, toDate);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogWarning("Invalid date range provided: {Errors}", string.Join(", ", validationResult.Errors));
+            return BadRequest(new { errors = validationResult.Errors });
+        }
         
         var query = new GetBreachesQuery
         {
@@ -64,6 +79,7 @@ public class BreachController : ControllerBase
     /// <response code="500">If there was an error generating the PDF</response>
     [HttpGet("pdf")]
     [ProducesResponseType(typeof(FileContentResult), 200)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(500)]
     public async Task<IActionResult> GetBreachesPdf(
         [FromQuery] DateTime? fromDate = null,
@@ -71,6 +87,14 @@ public class BreachController : ControllerBase
     {
         _logger.LogInformation("GetBreachesPdf endpoint called with FromDate: {FromDate}, ToDate: {ToDate}", 
             fromDate?.ToString("yyyy-MM-dd"), toDate?.ToString("yyyy-MM-dd"));
+        
+        // Validate input parameters
+        var validationResult = _validationService.ValidateDateRange(fromDate, toDate);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogWarning("Invalid date range provided for PDF generation: {Errors}", string.Join(", ", validationResult.Errors));
+            return BadRequest(new { errors = validationResult.Errors });
+        }
         
         var query = new GetBreachesPdfQuery
         {

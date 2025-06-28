@@ -117,6 +117,12 @@
             color: #e74c3c;
         }
         
+        .verified {
+            text-align: center;
+            font-weight: bold;
+            color: #27ae60;
+        }
+        
         .date {
             color: #7f8c8d;
         }
@@ -170,22 +176,24 @@
         <table class="breach-table">
             <thead>
                 <tr>
-                    <th>Breach Name</th>
+                    <th>Title</th>
                     <th>Domain</th>
-                    <th>Added Date</th>
-                    <th>Affected Users</th>
-                    <th>Data Classes</th>
+                    <th>Breach Date</th>
+                    <th>Accounts Affected</th>
+                    <th>Data Types</th>
+                    <th>Verified</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var breach in Model.Breaches)
                 {
                     <tr>
-                        <td><strong>@breach.Name</strong></td>
+                        <td><strong>@breach.Title</strong></td>
                         <td class="domain">@breach.Domain</td>
-                        <td class="date">@breach.AddedDate.ToString("yyyy-MM-dd")</td>
+                        <td class="date">@(breach.BreachDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
                         <td class="pwn-count">@breach.PwnCount.ToString("N0")</td>
                         <td>@string.Join(", ", breach.DataClasses.Take(3))@(breach.DataClasses.Count > 3 ? "..." : "")</td>
+                        <td class="verified">@(breach.IsVerified ? "✓" : "✗")</td>
                     </tr>
                 }
             </tbody>

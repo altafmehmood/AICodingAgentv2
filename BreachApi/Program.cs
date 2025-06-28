@@ -3,8 +3,15 @@ using Swashbuckle.AspNetCore.Swagger;
 using MediatR;
 using BreachApi.Extensions;
 using BreachApi.Services;
+using BreachApi.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure options
+builder.Services.Configure<ExternalApiOptions>(builder.Configuration.GetSection(ExternalApiOptions.SectionName));
+builder.Services.Configure<CachingOptions>(builder.Configuration.GetSection(CachingOptions.SectionName));
+builder.Services.Configure<ResilienceOptions>(builder.Configuration.GetSection(ResilienceOptions.SectionName));
+builder.Services.Configure<ValidationOptions>(builder.Configuration.GetSection(ValidationOptions.SectionName));
 
 // Add services to the container.
 
@@ -32,6 +39,30 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 
 // Add PDF service
 builder.Services.AddScoped<IPdfService, PdfService>();
+
+// Add breach API service with HTTP client
+builder.Services.AddHttpClient<IBreachApiService, BreachApiService>();
+
+// Add validation service
+builder.Services.AddScoped<IValidationService, ValidationService>();
+
+// Add memory caching
+builder.Services.AddMemoryCache();
+
+// Add response caching
+builder.Services.AddResponseCaching();
+
+// Add health checks
+builder.Services.AddHealthChecks()
+    .AddCheck<BreachApi.HealthChecks.ExternalApiHealthCheck>("external_api")
+    .AddCheck("memory", () =>
+    {
+        var allocated = GC.GetTotalMemory(false);
+        var threshold = 1024 * 1024 * 500; // 500 MB threshold
+        return allocated < threshold ? 
+            Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy($"Memory usage: {allocated / 1024 / 1024} MB") :
+            Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy($"High memory usage: {allocated / 1024 / 1024} MB");
+    });
 
 // Configure logging
 builder.Logging.ClearProviders();
@@ -91,7 +122,32 @@ app.UseHttpsRedirection();
 // Use CORS
 app.UseCors("AllowAngularApp");
 
+// Use response caching
+app.UseResponseCaching();
+
 app.UseAuthorization();
+
+// Map health checks
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var response = new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(x => new
+            {
+                name = x.Key,
+                status = x.Value.Status.ToString(),
+                description = x.Value.Description,
+                duration = x.Value.Duration.TotalMilliseconds
+            }),
+            totalDuration = report.TotalDuration.TotalMilliseconds
+        };
+        await context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(response));
+    }
+});
 
 app.MapControllers();
 

@@ -1,7 +1,8 @@
 using MediatR;
-using Flurl.Http;
 using BreachApi.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using BreachApi.Services;
 
 namespace BreachApi.Features.Breaches.Queries;
 
@@ -10,12 +11,21 @@ namespace BreachApi.Features.Breaches.Queries;
 /// </summary>
 public class GetBreachesQueryHandler : IRequestHandler<GetBreachesQuery, List<Breach>>
 {
-    private const string HaveIBeenPwnedApiUrl = "https://haveibeenpwned.com/api/v3/breaches";
-    private readonly ILogger<GetBreachesQueryHandler> _logger;
+    private const string CacheKey = "breaches_all";
+    private const int CacheExpirationMinutes = 30;
     
-    public GetBreachesQueryHandler(ILogger<GetBreachesQueryHandler> logger)
+    private readonly ILogger<GetBreachesQueryHandler> _logger;
+    private readonly IMemoryCache _cache;
+    private readonly IBreachApiService _breachApiService;
+    
+    public GetBreachesQueryHandler(
+        ILogger<GetBreachesQueryHandler> logger, 
+        IMemoryCache cache,
+        IBreachApiService breachApiService)
     {
         _logger = logger;
+        _cache = cache;
+        _breachApiService = breachApiService;
     }
     
     /// <summary>
@@ -31,15 +41,31 @@ public class GetBreachesQueryHandler : IRequestHandler<GetBreachesQuery, List<Br
         
         try
         {
-            // Call the HaveIBeenPwned API
-            _logger.LogDebug("Calling HaveIBeenPwned API at {ApiUrl}", HaveIBeenPwnedApiUrl);
+            // Try to get cached breaches first
+            List<Breach> breaches;
             
-            var breaches = await HaveIBeenPwnedApiUrl
-                .WithHeader("User-Agent", "BreachApi-1.0")
-                .GetJsonAsync<List<Breach>>(cancellationToken: cancellationToken);
-            
-            _logger.LogInformation("Successfully retrieved {BreachCount} breaches from HaveIBeenPwned API", 
-                breaches.Count);
+            if (_cache.TryGetValue(CacheKey, out List<Breach>? cachedBreaches) && cachedBreaches != null)
+            {
+                _logger.LogInformation("Retrieved {BreachCount} breaches from cache", cachedBreaches.Count);
+                breaches = cachedBreaches;
+            }
+            else
+            {
+                // Call the external API with resilience policies
+                breaches = await _breachApiService.GetAllBreachesAsync(cancellationToken);
+                
+                // Cache the results
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(CacheExpirationMinutes),
+                    SlidingExpiration = TimeSpan.FromMinutes(10),
+                    Priority = CacheItemPriority.High
+                };
+                
+                _cache.Set(CacheKey, breaches, cacheOptions);
+                _logger.LogDebug("Cached {BreachCount} breaches for {ExpirationMinutes} minutes", 
+                    breaches.Count, CacheExpirationMinutes);
+            }
             
             // Apply date filtering if provided
             var filteredBreaches = breaches.AsEnumerable();
@@ -66,17 +92,9 @@ public class GetBreachesQueryHandler : IRequestHandler<GetBreachesQuery, List<Br
             
             return result;
         }
-        catch (FlurlHttpException ex)
-        {
-            _logger.LogError(ex, "HTTP error occurred while calling HaveIBeenPwned API. Status: {StatusCode}, Message: {Message}", 
-                ex.StatusCode, ex.Message);
-            
-            // Log the error and rethrow with a more meaningful message
-            throw new InvalidOperationException($"Failed to retrieve breaches from HaveIBeenPwned API: {ex.Message}", ex);
-        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error occurred while retrieving breaches");
+            _logger.LogError(ex, "Error occurred while processing breach query");
             throw;
         }
     }
