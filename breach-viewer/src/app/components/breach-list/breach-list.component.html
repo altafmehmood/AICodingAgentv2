@@ -1,0 +1,155 @@
+<div class="breach-list-container">
+  <mat-card class="filter-card">
+    <mat-card-header>
+      <mat-card-title>Breach Data Filter</mat-card-title>
+      <mat-card-subtitle>Filter breaches by date range</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="filterForm" class="filter-form">
+        <div class="filter-row">
+          <mat-form-field appearance="outline">
+            <mat-label>From Date</mat-label>
+            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate">
+            <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+            <mat-datepicker #fromPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>To Date</mat-label>
+            <input matInput [matDatepicker]="toPicker" formControlName="toDate">
+            <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+            <mat-datepicker #toPicker></mat-datepicker>
+          </mat-form-field>
+
+          <div class="filter-actions">
+            <button mat-raised-button color="primary" (click)="applyFilters()" [disabled]="loading">
+              <mat-icon>search</mat-icon>
+              Apply Filters
+            </button>
+            <button mat-stroked-button (click)="clearFilters()" [disabled]="loading">
+              <mat-icon>clear</mat-icon>
+              Clear
+            </button>
+            <button mat-raised-button color="accent" (click)="downloadPdf()" [disabled]="loading">
+              <mat-icon>download</mat-icon>
+              Download PDF
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="breach-table-card">
+    <mat-card-header>
+      <mat-card-title>Data Breaches</mat-card-title>
+      <mat-card-subtitle>
+        {{ breaches.length }} breach{{ breaches.length !== 1 ? 'es' : '' }} found
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading breaches...</p>
+      </div>
+
+      <div class="table-container" *ngIf="!loading">
+        <table mat-table [dataSource]="breaches" class="breach-table">
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef>Title</th>
+            <td mat-cell *matCellDef="let breach">
+              <div class="breach-title">
+                <strong>{{ breach.title }}</strong>
+                <div class="breach-flags" *ngIf="breach.isSensitive || breach.isRetired || breach.isSpamList">
+                  <mat-chip-listbox>
+                    <mat-chip-option *ngIf="breach.isSensitive" color="warn" size="small">Sensitive</mat-chip-option>
+                    <mat-chip-option *ngIf="breach.isRetired" color="basic" size="small">Retired</mat-chip-option>
+                    <mat-chip-option *ngIf="breach.isSpamList" color="basic" size="small">Spam List</mat-chip-option>
+                  </mat-chip-listbox>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Domain Column -->
+          <ng-container matColumnDef="domain">
+            <th mat-header-cell *matHeaderCellDef>Domain</th>
+            <td mat-cell *matCellDef="let breach">
+              <a [href]="'https://' + breach.domain" target="_blank" class="domain-link">
+                {{ breach.domain }}
+              </a>
+            </td>
+          </ng-container>
+
+          <!-- Breach Date Column -->
+          <ng-container matColumnDef="breachDate">
+            <th mat-header-cell *matHeaderCellDef>Breach Date</th>
+            <td mat-cell *matCellDef="let breach">
+              {{ formatDate(breach.breachDate || '') }}
+            </td>
+          </ng-container>
+
+          <!-- Pwn Count Column -->
+          <ng-container matColumnDef="pwnCount">
+            <th mat-header-cell *matHeaderCellDef>Accounts Affected</th>
+            <td mat-cell *matCellDef="let breach">
+              {{ formatNumber(breach.pwnCount) }}
+            </td>
+          </ng-container>
+
+          <!-- Data Classes Column -->
+          <ng-container matColumnDef="dataClasses">
+            <th mat-header-cell *matHeaderCellDef>Data Types</th>
+            <td mat-cell *matCellDef="let breach">
+              <mat-chip-listbox>
+                <mat-chip-option *ngFor="let dataClass of breach.dataClasses.slice(0, 3)" 
+                         color="primary" 
+                         size="small">
+                  {{ dataClass }}
+                </mat-chip-option>
+                <mat-chip-option *ngIf="breach.dataClasses.length > 3" 
+                         color="basic" 
+                         size="small">
+                  +{{ breach.dataClasses.length - 3 }} more
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </td>
+          </ng-container>
+
+          <!-- Verified Column -->
+          <ng-container matColumnDef="isVerified">
+            <th mat-header-cell *matHeaderCellDef>Verified</th>
+            <td mat-cell *matCellDef="let breach">
+              <mat-icon [color]="getVerificationColor(breach.isVerified)">
+                {{ breach.isVerified ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let breach">
+              <button mat-icon-button 
+                      [matTooltip]="breach.description"
+                      matTooltipPosition="above">
+                <mat-icon>info</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <div class="no-data" *ngIf="breaches.length === 0">
+          <mat-icon>search_off</mat-icon>
+          <p>No breaches found for the selected criteria.</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> 
