@@ -1,0 +1,128 @@
+# Cursor guidelines for C# asp.net and Angular developers
+
+## General coding standards
+
+### Code Style and Formatting
+- Use consistent indentation (4 spaces for C#, 2 spaces for TypeScript/JavaScript)
+- Follow camelCase for variables and methods in C#
+- Use PascalCase for classes, properties, and public methods in C#
+- Use kebab-case for Angular component selectors and CSS classes
+- Always use meaningful variable and method names
+- Keep methods under 20 lines when possible
+- Keep classes focused on a single responsibility
+
+### Comments and Documentation
+- Write self-documenting code when possible
+- Use XML documentation comments for public APIs in C#
+- Add JSDoc comments for Angular services and complex methods
+- Include TODO comments for future improvements
+- Document complex business logic with inline comments
+
+### Naming Conventions
+- Controllers: `[Entity]Controller` (e.g., `UserController`)
+- Services: `I[Entity]Service` and `[Entity]Service` (e.g., `IUserService`, `UserService`)
+- Models: `[Entity]` (e.g., `User`, `UserDto`)
+- ViewModels: `[Entity]ViewModel` (e.g., `UserViewModel`)
+- Repositories: `I[Entity]Repository` and `[Entity]Repository`
+- Queries: `[Entity][Action]Query` and `[Entity][Action]QueryHandler` (e.g., `GetUserByIdQuery`, `GetUserByIdQueryHandler`)
+- Commands: `[Entity][Action]Command` and `[Entity][Action]CommandHandler` (e.g., `CreateUserCommand`, `CreateUserCommandHandler`)
+
+### Project Structure
+```
+src/
+├── Controllers/
+├── Services/
+├── Models/
+├── ViewModels/
+├── Features/
+│   ├── [Feature]/
+│   │   ├── Queries/
+│   │   │   ├── [Query].cs
+│   │   │   └── [Query]Handler.cs
+│   │   └── Commands/
+│   │       ├── [Command].cs
+│   │       └── [Command]Handler.cs
+│   └── Shared/
+│       ├── Behaviors/
+│       └── Validators/
+├── Data/
+│   ├── Repositories/
+│   └── Context/
+├── Middleware/
+├── Extensions/
+└── Configuration/
+```
+
+### Preferred NuGet Packages
+- **Flurl.Http**: For HTTP client operations with fluent API
+- **MediatR**: For implementing CQRS pattern with mediator
+- **FluentValidation**: For input validation
+- **AutoMapper**: For object-to-object mapping
+- **Serilog**: For structured logging
+
+### CQRS/MediatR Implementation
+- Use MediatR for implementing CQRS pattern
+- Separate queries (read operations) from commands (write operations)
+- Implement query handlers for data retrieval operations
+- Implement command handlers for data modification operations
+- Use Flurl.Http for external API calls within handlers
+- Implement validation using FluentValidation
+
+## Angular Guidelines
+
+### Naming Conventions
+- Components: `[feature]-[type].component.ts` (e.g., `user-list.component.ts`)
+- Services: `[feature].service.ts` (e.g., `user.service.ts`)
+- Models: `[entity].model.ts` (e.g., `user.model.ts`)
+- Guards: `[feature].guard.ts` (e.g., `auth.guard.ts`)
+- Pipes: `[feature].pipe.ts` (e.g., `currency.pipe.ts`)
+
+### Project Structure
+```
+src/
+├── app/
+│   ├── components/
+│   ├── services/
+│   ├── models/
+│   ├── guards/
+│   ├── pipes/
+│   ├── directives/
+│   └── shared/
+├── assets/
+└── environments/
+```
+
+### Component Architecture
+- Use OnPush change detection strategy when possible
+- Implement proper lifecycle hooks
+- Use Input/Output decorators for component communication
+- Keep components small and focused
+- Use smart/dumb component pattern
+
+### State Management
+- Use Angular services for simple state
+- Consider NgRx for complex state management
+- Implement proper error handling in effects
+- Use selectors for derived state
+- Keep actions simple and descriptive
+
+### TypeScript Best Practices
+- Use strict TypeScript configuration
+- Define interfaces for all data structures
+- Use enums for constants
+- Implement proper type guards
+- Use generics for reusable components
+
+### Angular Services
+- Use providedIn: 'root' for singleton services
+- Implement proper error handling
+- Use observables for async operations
+- Implement proper cleanup in ngOnDestroy
+- Use dependency injection for service dependencies
+
+### Template Guidelines
+- Use Angular directives (ngIf, ngFor, ngSwitch)
+- Implement proper form validation
+- Use reactive forms for complex forms
+- Implement proper accessibility (ARIA labels)
+- Use Angular Material or similar UI library
