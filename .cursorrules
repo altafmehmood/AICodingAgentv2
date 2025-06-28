@@ -29,7 +29,6 @@
 
 ### Project Structure
 ```
-src/
 ├── Controllers/
 ├── Services/
 ├── Models/
@@ -65,6 +64,10 @@ src/
 - Implement command handlers for data modification operations
 - Use Flurl.Http for external API calls within handlers
 - Implement validation using FluentValidation
+
+### Other asp.net core best practices
+- Use global exception handling 
+- Use logging using Microsoft.Extensions.Logging
 
 ## Angular Guidelines
 

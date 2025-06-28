@@ -1,5 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using MediatR;
+using BreachApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add MediatR for CQRS pattern
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+// Configure logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.AddEventSourceLogger();
+
+// Configure structured logging
+builder.Logging.Configure(options =>
+{
+    options.ActivityTrackingOptions = ActivityTrackingOptions.SpanId | 
+                                     ActivityTrackingOptions.TraceId | 
+                                     ActivityTrackingOptions.ParentId;
+});
 
 // Add Swagger/OpenAPI services
 builder.Services.AddEndpointsApiExplorer();
@@ -29,6 +48,10 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// Add global exception handler early in the pipeline
+app.UseGlobalExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
