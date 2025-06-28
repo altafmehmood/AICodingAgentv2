@@ -2,17 +2,25 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using MediatR;
 using BreachApi.Extensions;
+using BreachApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews()
+    .AddRazorRuntimeCompilation();
+
+builder.Services.AddHttpContextAccessor();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 // Add MediatR for CQRS pattern
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+// Add PDF service
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 // Configure logging
 builder.Logging.ClearProviders();
