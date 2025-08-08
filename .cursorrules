@@ -1,0 +1,153 @@
+# Cursor guidelines for C# asp.net and Angular developers
+
+## General coding standards
+
+### Code Style and Formatting
+- Use consistent indentation (4 spaces for C#, 2 spaces for TypeScript/JavaScript)
+- Follow camelCase for variables and methods in C#
+- Use PascalCase for classes, properties, and public methods in C#
+- Use kebab-case for Angular component selectors and CSS classes
+- Always use meaningful variable and method names
+- Keep methods under 20 lines when possible
+- Keep classes focused on a single responsibility
+
+### Comments and Documentation
+- Write self-documenting code when possible
+- Use XML documentation comments for public APIs in C#
+- Add JSDoc comments for Angular services and complex methods
+- Include TODO comments for future improvements
+- Document complex business logic with inline comments
+
+### Naming Conventions
+- Controllers: `[Entity]Controller` (e.g., `UserController`)
+- Services: `I[Entity]Service` and `[Entity]Service` (e.g., `IUserService`, `UserService`)
+- Models: `[Entity]` (e.g., `User`, `UserDto`)
+- ViewModels: `[Entity]ViewModel` (e.g., `UserViewModel`)
+- Repositories: `I[Entity]Repository` and `[Entity]Repository`
+- Queries: `[Entity][Action]Query` and `[Entity][Action]QueryHandler` (e.g., `GetUserByIdQuery`, `GetUserByIdQueryHandler`)
+- Commands: `[Entity][Action]Command` and `[Entity][Action]CommandHandler` (e.g., `CreateUserCommand`, `CreateUserCommandHandler`)
+
+### Project Structure
+```
+├── Controllers/
+├── Services/
+├── Models/
+├── ViewModels/
+├── Features/
+│   ├── [Feature]/
+│   │   ├── Queries/
+│   │   │   ├── [Query].cs
+│   │   │   └── [Query]Handler.cs
+│   │   └── Commands/
+│   │       ├── [Command].cs
+│   │       └── [Command]Handler.cs
+│   └── Shared/
+│       ├── Behaviors/
+│       └── Validators/
+├── Data/
+│   ├── Repositories/
+│   └── Context/
+├── Middleware/
+├── Extensions/
+└── Configuration/
+```
+
+### Preferred NuGet Packages
+- **Flurl.Http**: For HTTP client operations with fluent API
+- **MediatR**: For implementing CQRS pattern with mediator
+- **FluentValidation**: For input validation
+
+### CQRS/MediatR Implementation
+- Use MediatR for implementing CQRS pattern
+- Separate queries (read operations) from commands (write operations)
+- Implement query handlers for data retrieval operations
+- Implement command handlers for data modification operations
+- Use Flurl.Http for external API calls within handlers
+- Implement validation using FluentValidation
+
+### Other asp.net core best practices
+- Use global exception handling 
+- Use logging using Microsoft.Extensions.Logging
+
+## Angular Guidelines
+
+### Naming Conventions
+- Components: `[feature]-[type].component.ts` (e.g., `user-list.component.ts`)
+- Services: `[feature].service.ts` (e.g., `user.service.ts`)
+- Models: `[entity].model.ts` (e.g., `user.model.ts`)
+- Guards: `[feature].guard.ts` (e.g., `auth.guard.ts`)
+- Pipes: `[feature].pipe.ts` (e.g., `currency.pipe.ts`)
+
+### Project Structure
+```
+src/
+├── app/
+│   ├── components/
+│   ├── services/
+│   ├── models/
+│   ├── guards/
+│   ├── pipes/
+│   ├── directives/
+│   └── shared/
+├── assets/
+└── environments/
+```
+
+### Component Architecture
+- Use OnPush change detection strategy when possible
+- Implement proper lifecycle hooks
+- Use Input/Output decorators for component communication
+- Keep components small and focused
+- Use smart/dumb component pattern
+
+### State Management
+- Use Angular services for simple state
+- Consider NgRx for complex state management
+- Implement proper error handling in effects
+- Use selectors for derived state
+- Keep actions simple and descriptive
+
+### TypeScript Best Practices
+- Use strict TypeScript configuration
+- Define interfaces for all data structures
+- Use enums for constants
+- Implement proper type guards
+- Use generics for reusable components
+
+### Angular Services
+- Use providedIn: 'root' for singleton services
+- Implement proper error handling
+- Use observables for async operations
+- Implement proper cleanup in ngOnDestroy
+- Use dependency injection for service dependencies
+
+### Template Guidelines
+- Use Angular directives (ngIf, ngFor, ngSwitch)
+- Implement proper form validation
+- Use reactive forms for complex forms
+- Implement proper accessibility (ARIA labels)
+- Use Angular Material or similar UI library
+
+## Git
+
+### Commit Messages
+1.  **Subject Line (First Line):**
+    * Start with a concise, imperative summary of the change (e.g., "Fix: Prevent null pointer exception in user service").
+    * Keep it under 50-72 characters.
+    * Capitalize the first letter.
+    * Do NOT end with a period.
+    * (Optional, but recommended for consistency): Consider using a conventional commit type prefix like `feat:`, `fix:`, `chore:`, `docs:`, `style:`, `refactor:`, `test:`, `build:`, `ci:`, `perf:`, `revert:`
+
+2.  **Blank Line:**
+    * Always include a blank line after the subject line. This is crucial for Git tools to correctly parse the message.
+
+3.  **Body (Detailed Explanation):**
+    * **Explain the "Why":** Describe the problem being solved or the reason for the change. What was the context? What motivated this particular solution? Don't just say "fixed bug," explain *what* bug and *why* it needed fixing.
+    * **Explain the "What":** Detail what changes were made. Be specific. If multiple changes were part of this commit, use bullet points for clarity.
+    * **Explain the "How" (briefly, if necessary):** While generally less important than "why" and "what," briefly explain any significant architectural decisions or complex implementation details if they are not immediately obvious from the code.
+    * **Impact/Consequences:** Describe any potential side effects or wider implications of the change.
+    * **Refer to related issues/tickets:** If applicable, include references to issue trackers (e.g., `Fixes #123`, `Closes JIRA-456`).
+    * **Breaking Changes/Deprecations:** Clearly state if the commit introduces any breaking changes or deprecates existing functionality.
+    * **Reviewers/Acknowledgments:** Optionally, mention anyone who significantly contributed or reviewed the changes.
+    * **Wrap Lines:** Keep lines in the body wrapped at around 72-100 characters for readability in various Git tools.
+

@@ -1,0 +1,146 @@
+.breach-list-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+}
+
+.filter-form {
+  width: 100%;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.filter-row mat-form-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.breach-table-card {
+  margin-bottom: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+}
+
+.loading-container p {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.breach-table {
+  width: 100%;
+}
+
+.breach-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.breach-flags {
+  display: flex;
+  gap: 4px;
+}
+
+.domain-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.domain-link:hover {
+  text-decoration: underline;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 16px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .breach-list-container {
+    padding: 10px;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+  }
+  
+  .filter-row mat-form-field {
+    min-width: 100%;
+  }
+  
+  .filter-actions {
+    justify-content: stretch;
+  }
+  
+  .filter-actions button {
+    flex: 1;
+  }
+  
+  .displayedColumns {
+    font-size: 12px;
+  }
+}
+
+/* Table row hover effect */
+.breach-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Chip styling */
+mat-chip {
+  font-size: 11px;
+  height: 20px;
+}
+
+/* Icon styling */
+mat-icon[color="accent"] {
+  color: #4caf50;
+}
+
+mat-icon[color="warn"] {
+  color: #f44336;
+} 
